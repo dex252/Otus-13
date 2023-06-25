@@ -39,9 +39,10 @@ namespace ReflectionSample.Tests.Tests
         public static object[][] TestDataHard =>
          new[]
          {
-                new object[] { new HardClass(), "{\"Name\":null,\"Simple\":{\"Name\":null,\"Age\":null},\"Age\":5}" },
-                new object[] { new HardClass() { Name = "Сложный класс", Simple = new SimpleClass() { Name = "Простой класс"} },  "{\"Name\":\"Сложный класс\",\"Simple\":{\"Name\":\"Простой класс\",\"Age\":3},\"Age\":5}"},
-
+                new object[] { new HardClass(), "{\"Name\":null,\"Simple\":{\"Name\":null,\"Age\":null},\"SimpleList\":[],\"Age\":5}" },
+                new object[] { new HardClass() { SimpleList = new List<SimpleClass>()}, "{\"Name\":null,\"Simple\":{\"Name\":null,\"Age\":null},\"SimpleList\":[],\"Age\":5}" },
+                new object[] { new HardClass() { Name = "Сложный класс", Simple = new SimpleClass() { Name = "Простой класс"} },  "{\"Name\":\"Сложный класс\",\"Simple\":{\"Name\":\"Простой класс\",\"Age\":3},\"SimpleList\":[],\"Age\":5}"},
+                new object[] { new HardClass() { Name = "Сложный список", SimpleList = new List<SimpleClass>() { new SimpleClass() { Name = "Простой элемент списка 1"}, new SimpleClass() { Name = "Простой элемент списка 2" } } }, "{\"Name\":\"Сложный список\",\"Simple\":{\"Name\":null,\"Age\":null},\"SimpleList\":[{\"Name\":\"Простой элемент списка 1\",\"Age\":3},{\"Name\":\"Простой элемент списка 2\",\"Age\":3}],\"Age\":5}" },
          };
     }
 

@@ -12,6 +12,8 @@
         private int? Age;
         public SimpleClass? Simple { get; set; }
 
+        public List<SimpleClass> SimpleList { get; set; }
+
     }
 
     public class SimpleClass
