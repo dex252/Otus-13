@@ -25,59 +25,89 @@ namespace ReflectionSample.Serilalize
 
             if (type == typeof(string))
             {
-                value = obj == null ? NULL_VALUE : $"\"{obj}\"";
-                if (!string.IsNullOrWhiteSpace(name))
-                {
-                    return $"\"{name}\"{TUPLE_SEPARATOR}{value}";
-                }
-
-                return $"{value}";
+                return ToStrStringType(obj, name, out value);
             }
 
             bool isNullablePrimitive = IsNullablePrimitive(type);
             if (type.IsPrimitive || isNullablePrimitive)
             {
-                value = obj == null ? NULL_VALUE : $"{obj}";
-
-                if (!string.IsNullOrWhiteSpace(name))
-                {
-                    return $"\"{name}\"{TUPLE_SEPARATOR}{value}".Replace(MAIN_SEPARATOR, POINT);
-                }
-
-                return $"{value}".Replace(MAIN_SEPARATOR, POINT);
+                return ToStrPrimitiveType(obj, name, out value);
             }
 
             if (type.IsGenericType || type.IsArray)
             {
-                serialized.Add(GetGenerics(obj, type));
-                var members = string.Join(MAIN_SEPARATOR, serialized);
-
-                if (!string.IsNullOrWhiteSpace(name))
-                {
-                    return $"\"{name}\"{TUPLE_SEPARATOR}{ARRAY_START_SEPARATOR}{members}{ARRAY_END_SEPARATOR}";
-                }
-
-                return $"{ARRAY_START_SEPARATOR}{members}{ARRAY_END_SEPARATOR}";
+                return ToStrGenericOrArrayType(obj, name, type, serialized);
             }
 
-            serialized.Add(GetProperties(obj, type));
-            serialized.Add(GetFields(obj, type));
-            serialized.RemoveAll(e => string.IsNullOrWhiteSpace(e));
+            EnrichSerializedData(obj, type, serialized);
 
             if (type.IsClass)
             {
-                var members = string.Join(MAIN_SEPARATOR, serialized);
-                if (!string.IsNullOrWhiteSpace(name))
-                {
-                    return $"\"{name}\"{TUPLE_SEPARATOR}{ARRAY_ITEM_START_SEPARATOR}{members}{ARRAY_ITEM_END_SEPARATOR}";
-                }
-
-                return $"{ARRAY_ITEM_START_SEPARATOR}{members}{ARRAY_ITEM_END_SEPARATOR}";
+                return ToStrClassType(name, serialized);
             }
 
             return string.Join(MAIN_SEPARATOR, serialized);
         }
 
+        private static void EnrichSerializedData(object obj, Type type, List<string> serialized)
+        {
+            serialized.Add(GetProperties(obj, type));
+            serialized.Add(GetFields(obj, type));
+            serialized.RemoveAll(e => string.IsNullOrWhiteSpace(e));
+        }
+
+        private static string ToStrClassType(string name, List<string> serialized)
+        {
+            var members = string.Join(MAIN_SEPARATOR, serialized);
+            if (!string.IsNullOrWhiteSpace(name))
+            {
+                return $"\"{name}\"{TUPLE_SEPARATOR}{ARRAY_ITEM_START_SEPARATOR}{members}{ARRAY_ITEM_END_SEPARATOR}";
+            }
+
+            return $"{ARRAY_ITEM_START_SEPARATOR}{members}{ARRAY_ITEM_END_SEPARATOR}";
+        }
+
+        private static string ToStrGenericOrArrayType(object obj, string name, Type type, List<string> serialized)
+        {
+            serialized.Add(GetGenerics(obj, type));
+            var members = string.Join(MAIN_SEPARATOR, serialized);
+
+            if (!string.IsNullOrWhiteSpace(name))
+            {
+                return $"\"{name}\"{TUPLE_SEPARATOR}{ARRAY_START_SEPARATOR}{members}{ARRAY_END_SEPARATOR}";
+            }
+
+            return $"{ARRAY_START_SEPARATOR}{members}{ARRAY_END_SEPARATOR}";
+        }
+
+        private static string ToStrPrimitiveType(object obj, string name, out object value)
+        {
+            value = obj == null ? NULL_VALUE : $"{obj}";
+
+            if (!string.IsNullOrWhiteSpace(name))
+            {
+                return $"\"{name}\"{TUPLE_SEPARATOR}{value}".Replace(MAIN_SEPARATOR, POINT);
+            }
+
+            return $"{value}".Replace(MAIN_SEPARATOR, POINT);
+        }
+
+        private static string ToStrStringType(object obj, string name, out object value)
+        {
+            value = obj == null ? NULL_VALUE : $"\"{obj}\"";
+            if (!string.IsNullOrWhiteSpace(name))
+            {
+                return $"\"{name}\"{TUPLE_SEPARATOR}{value}";
+            }
+
+            return $"{value}";
+        }
+
+        /// <summary>
+        /// Примитив допускающий значение null
+        /// </summary>
+        /// <param name="type"></param>
+        /// <returns></returns>
         private static bool IsNullablePrimitive(Type type)
         {
 
@@ -115,7 +145,6 @@ namespace ReflectionSample.Serilalize
             var collection = obj as IEnumerable;
             foreach (var item in collection)
             {
-                //Пока не рассматриваю
                 if (elemType.IsGenericType && !isNullablePrimitive)
                 {
                     serialized.Add($"{ARRAY_ITEM_START_SEPARATOR}{GetMembers(item, null, elemType)}{ARRAY_ITEM_END_SEPARATOR}");
