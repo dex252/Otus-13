@@ -64,6 +64,17 @@ namespace ReflectionSample.Serilalize
             serialized.Add(GetFields(obj, type));
             serialized.RemoveAll(e => string.IsNullOrWhiteSpace(e));
 
+            if (type.IsClass)
+            {
+                var members = string.Join(MAIN_SEPARATOR, serialized);
+                if (!string.IsNullOrWhiteSpace(name))
+                {
+                    return $"\"{name}\"{TUPLE_SEPARATOR}{ARRAY_ITEM_START_SEPARATOR}{members}{ARRAY_ITEM_END_SEPARATOR}";
+                }
+
+                return $"{ARRAY_ITEM_START_SEPARATOR}{members}{ARRAY_ITEM_END_SEPARATOR}";
+            }
+
             return string.Join(MAIN_SEPARATOR, serialized);
         }
 
@@ -133,7 +144,7 @@ namespace ReflectionSample.Serilalize
                 
                 var fieldType = field.FieldType;
                 var fieldName = field.Name;
-                var value = field.GetValue(obj);
+                var value = obj == null ? null : field.GetValue(obj);
 
                 var members = GetMembers(value, fieldName, fieldType);
                 serialized.Add(members);
@@ -153,7 +164,8 @@ namespace ReflectionSample.Serilalize
                 var propertyType = property.PropertyType;
 
                 var propertyName = property.Name;
-                var value = getter.Invoke(obj, null);
+
+                var value = obj == null ? null : getter.Invoke(obj, null);
 
                 var members = GetMembers(value, propertyName, propertyType);
                 serialized.Add(members);

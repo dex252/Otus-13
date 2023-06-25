@@ -53,6 +53,7 @@ namespace ReflectionSample.Tests.Tests
             var str = "aaa";
             var list = new List<string>() { "111", "222" };
             var listEmpty = new List<string>();
+            var d = new D() { Name = "Cat" };
 
             var jsonNum = JsonConvert.SerializeObject(num);
             Assert.NotEmpty(jsonNum);
@@ -68,6 +69,9 @@ namespace ReflectionSample.Tests.Tests
 
             var jsonListEmpty = JsonConvert.SerializeObject(listEmpty);
             Assert.NotEmpty(jsonListEmpty);
+
+            var jsonClass = JsonConvert.SerializeObject(d);
+            Assert.NotEmpty(jsonClass);
         }
 
         public class B
@@ -80,6 +84,11 @@ namespace ReflectionSample.Tests.Tests
         {
             public List<string> Strings2 { get; set; }
             public List<int> Ints { get; set; }
+        }
+
+        public class D
+        {
+            public string Name { get; set; }
         }
     }
 }

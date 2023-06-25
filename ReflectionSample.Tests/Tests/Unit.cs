@@ -30,6 +30,14 @@ namespace ReflectionSample.Tests.Tests
             Assert.Equal(serialized, equal);
         }
 
+        [Theory]
+        [MemberData(nameof(TestDataHard))]
+        public void SerializeTestHard(HardClass obj, string equal)
+        {
+            var serialized = Reflection.Serialize(obj);
+            Assert.Equal(serialized, equal);
+        }
+
         [Fact]
         public void SerializeTestSingleData()
         {
