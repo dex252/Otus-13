@@ -45,6 +45,31 @@ namespace ReflectionSample.Tests.Tests
             Assert.NotEmpty(json);
         }
 
+        [Fact]
+        public void JsonPrimitive()
+        {
+            var num = 1;
+            var fNum = 2.5f;
+            var str = "aaa";
+            var list = new List<string>() { "111", "222" };
+            var listEmpty = new List<string>();
+
+            var jsonNum = JsonConvert.SerializeObject(num);
+            Assert.NotEmpty(jsonNum);
+
+            var jsonFNum = JsonConvert.SerializeObject(fNum);
+            Assert.NotEmpty(jsonFNum);
+
+            var jsonStr = JsonConvert.SerializeObject(str);
+            Assert.NotEmpty(jsonStr);
+
+            var jsonList = JsonConvert.SerializeObject(list);
+            Assert.NotEmpty(jsonList);
+
+            var jsonListEmpty = JsonConvert.SerializeObject(listEmpty);
+            Assert.NotEmpty(jsonListEmpty);
+        }
+
         public class B
         {
             public List<string> Strings1 { get; set; }

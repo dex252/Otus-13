@@ -1,21 +1,13 @@
 ﻿using ReflectionSample.Serilalize;
-using System;
-using System.Reflection;
 
 namespace ReflectionSample
 {
     public static class Reflection
     {
-        public static string Serialize<T>(T obj)
-            where T : class
+        public static string Serialize(object obj)
         {
-            var type = typeof(T);
+            var type = obj.GetType();
             var name = string.Empty;
-
-            if (!type.IsGenericType)
-            {
-                name = type.Name;
-            }
                 
             return Write.GetMembers(obj, name, type);
         }

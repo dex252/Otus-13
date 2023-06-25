@@ -27,10 +27,12 @@ namespace ReflectionSample.Tests.Tests
         public static object[][] TestDataList =>
          new[]
          {      
-                new object[] { new ListClass(),"",},
-                new object[] { new ListClass() { Strings = new List<string>() { "aaa", "bbb", "ccc"} },  "",},
-                new object[] { new ListClass() { Ints = new List<int>() { 1, 2, 3} },  "",},
-                new object[] { new ListClass() { Strings = new List<string>() { "aaa", "bbb", "ccc"}, Ints = new List<int>() { 1, 2, 3 } },  "",}
+                new object[] { new ListClass(), "\"Strings\":[],\"Ints\":[],\"Array\":[]", },
+                new object[] { new ListClass() { Array = new string[2] { "ccc", "ddd"} }, "\"Strings\":[],\"Ints\":[],\"Array\":[\"ccc\",\"ddd\"]", },
+                new object[] { new ListClass() { Strings = new List<string>() { "aaa", "bbb", "ccc"} }, "\"Strings\":[\"aaa\",\"bbb\",\"ccc\"],\"Ints\":[],\"Array\":[]", },
+                new object[] { new ListClass() { Ints = new List<int>() { 1, 2, 3} }, "\"Strings\":[],\"Ints\":[1,2,3],\"Array\":[]", },
+                new object[] { new ListClass() { Strings = new List<string>() { "aaa", "bbb", "ccc"}, Ints = new List<int>() { 1, 2, 3 } }, "\"Strings\":[\"aaa\",\"bbb\",\"ccc\"],\"Ints\":[1,2,3],\"Array\":[]", },
+                new object[] { new ListClass() { Strings = new List<string>() { "aaa", "bbb", "ccc"}, Ints = new List<int>() { 1, 2, 3 }, Array = new string[2] { "ccc", "ddd" } }, "\"Strings\":[\"aaa\",\"bbb\",\"ccc\"],\"Ints\":[1,2,3],\"Array\":[\"ccc\",\"ddd\"]", }
 
          };
     }

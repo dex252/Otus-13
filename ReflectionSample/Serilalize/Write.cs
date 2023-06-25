@@ -1,13 +1,9 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Data;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
-using System.Runtime.Serialization;
-using System.Text;
-using System.Xml.Linq;
 
 namespace ReflectionSample.Serilalize
 {
@@ -18,61 +14,66 @@ namespace ReflectionSample.Serilalize
         const string ARRAY_ITEM_START_SEPARATOR = "{";
         const string ARRAY_ITEM_END_SEPARATOR = "}";
         const string NULL_VALUE = "null";
+        const string POINT = ".";
+        const string TUPLE_SEPARATOR = ":";
+        const string MAIN_SEPARATOR = ",";
 
         public static string GetMembers(object obj, string name, Type type)
         {
             var serialized = new List<string>();
             object value;
+
             if (type == typeof(string))
             {
-                if (obj == null)
+                value = obj == null ? NULL_VALUE : $"\"{obj}\"";
+                if (!string.IsNullOrWhiteSpace(name))
                 {
-                    value = NULL_VALUE;
-                }
-                else
-                {
-                    value = $"\"{obj}\"";
+                    return $"\"{name}\"{TUPLE_SEPARATOR}{value}";
                 }
 
-                return $"\"{name}\":{value}";
+                return $"{value}";
             }
 
-            //Примитив, допускающий значение null
-            bool isNullablePrimitive = type.IsGenericType
-                                   && type.GetGenericTypeDefinition() == typeof(Nullable<>)
-                                   && type.GetGenericArguments()[0].IsPrimitive;
-
+            bool isNullablePrimitive = IsNullablePrimitive(type);
             if (type.IsPrimitive || isNullablePrimitive)
             {
-                if (obj == null)
-                {
-                    value = NULL_VALUE;
-                }
-                else
-                {
-                    value = $"{obj}";
-                }
-                return $"\"{name}\":{value}";
-            }
-
-            if (type.IsGenericType)
-            {
-                serialized.Add(GetGenerics(obj, type));
-                var members = string.Join(",", serialized);
+                value = obj == null ? NULL_VALUE : $"{obj}";
 
                 if (!string.IsNullOrWhiteSpace(name))
                 {
-                    return $"\"{name}\":{ARRAY_START_SEPARATOR}{members}{ARRAY_END_SEPARATOR}";
+                    return $"\"{name}\"{TUPLE_SEPARATOR}{value}".Replace(MAIN_SEPARATOR, POINT);
                 }
 
-                return members;
+                return $"{value}".Replace(MAIN_SEPARATOR, POINT);
+            }
+
+            if (type.IsGenericType || type.IsArray)
+            {
+                serialized.Add(GetGenerics(obj, type));
+                var members = string.Join(MAIN_SEPARATOR, serialized);
+
+                if (!string.IsNullOrWhiteSpace(name))
+                {
+                    return $"\"{name}\"{TUPLE_SEPARATOR}{ARRAY_START_SEPARATOR}{members}{ARRAY_END_SEPARATOR}";
+                }
+
+                return $"{ARRAY_START_SEPARATOR}{members}{ARRAY_END_SEPARATOR}";
             }
 
             serialized.Add(GetProperties(obj, type));
             serialized.Add(GetFields(obj, type));
             serialized.RemoveAll(e => string.IsNullOrWhiteSpace(e));
 
-            return string.Join(",", serialized);
+            return string.Join(MAIN_SEPARATOR, serialized);
+        }
+
+        private static bool IsNullablePrimitive(Type type)
+        {
+
+            //Примитив, допускающий значение null
+            return type.IsGenericType
+                                   && type.GetGenericTypeDefinition() == typeof(Nullable<>)
+                                   && type.GetGenericArguments()[0].IsPrimitive;
         }
 
         private static string GetGenerics(object obj, Type type)
@@ -84,13 +85,27 @@ namespace ReflectionSample.Serilalize
             }
 
             var serialized = new List<string>();
-            var elemType = type.GetGenericArguments()[0];
+            Type elemType = null;
+            if (type.IsGenericType)
+            {
+                elemType = type.GetGenericArguments()[0];
+            }
+            else if (type.IsArray)
+            {
+                elemType = type.GetElementType();
+            }
+            else 
+            {
+                throw new NotImplementedException();
+            }
+            
+            var isNullablePrimitive = IsNullablePrimitive(type);
 
             var collection = obj as IEnumerable;
             foreach (var item in collection)
             {
                 //Пока не рассматриваю
-                if (elemType.IsGenericType)
+                if (elemType.IsGenericType && !isNullablePrimitive)
                 {
                     serialized.Add($"{ARRAY_ITEM_START_SEPARATOR}{GetMembers(item, null, elemType)}{ARRAY_ITEM_END_SEPARATOR}");
                     continue;
@@ -100,7 +115,7 @@ namespace ReflectionSample.Serilalize
                 serialized.Add(GetMembers(item, null, elemType));
             }
 
-            return string.Join(",", serialized);
+            return string.Join(MAIN_SEPARATOR, serialized);
         }
 
         private static string GetFields(object obj, Type type)
@@ -124,7 +139,7 @@ namespace ReflectionSample.Serilalize
                 serialized.Add(members);
             }
 
-            return string.Join(",",serialized);
+            return string.Join(MAIN_SEPARATOR, serialized);
         }
 
         private static string GetProperties(object obj, Type type)
@@ -136,6 +151,7 @@ namespace ReflectionSample.Serilalize
             {
                 var getter = property.GetGetMethod();
                 var propertyType = property.PropertyType;
+
                 var propertyName = property.Name;
                 var value = getter.Invoke(obj, null);
 
@@ -143,7 +159,7 @@ namespace ReflectionSample.Serilalize
                 serialized.Add(members);
             }
 
-            return string.Join(",", serialized);
+            return string.Join(MAIN_SEPARATOR, serialized);
         }
     }
 }
