@@ -1,10 +1,9 @@
-﻿using System;
+﻿using ReflectionSample.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
-using System.Text;
-using System.Xml.Linq;
 
 namespace ReflectionSample.Managers
 {
@@ -190,146 +189,5 @@ namespace ReflectionSample.Managers
             value = text.Substring(valStart, valEnd - valStart + 1);
             return value;
         }
-
     }
-
-    public class Token
-    {
-        public string Name { get; }
-        public string TextValue { get; }
-        public TokenType TokenType { get; set; }
-        public int Level { get; set; }
-        public List<Token> Childs { get; }
-        public object Value { get; private set; }
-
-        public Token(string name, string value, TokenType tokenType, int level = 0)
-        {
-            Name = name;
-            TextValue = value;
-            TokenType = tokenType;
-            Level = level;
-        }
-
-    internal void SetType()
-        {
-            var text = TextValue.Trim();
-            if (text.Length == 0)
-            {
-                TokenType = TokenType.Nullable;
-                return;
-            }
-
-            if (text.First() == '"' && text.Last() == '"')
-            {
-                TokenType = TokenType.String;
-                Value = TextValue.Substring(1, TextValue.Length-2);
-                return;
-            }
-
-            if (text.First() == '[' && text.Last() == ']')
-            {
-                TokenType = TokenType.IEnumerable;
-                return;
-            }
-
-            if (text.First() == '{' && text.Last() == '}')
-            {
-                TokenType = TokenType.Class;
-                return;
-            }
-
-            if (bool.TryParse(TextValue, out var result))
-            {
-                TokenType = TokenType.Boolean;
-                Value = result;
-                return;
-            }
-
-            if (TextValue == "null")
-            {
-                TokenType = TokenType.Nullable;
-                return;
-            }
-            
-            if(TextValue.First() == '-' && TextValue.Length > 1 && TextValue.Substring(1).All(e => char.IsDigit(e)))
-            {
-                TokenType = TokenType.Number;
-                Value = GetNubmer(TextValue);
-                return;
-            }
-
-            if (TextValue.All(e => char.IsDigit(e)))
-            {
-                TokenType = TokenType.Number;
-                Value = GetNubmer(TextValue);
-                return;
-            }
-
-            throw new Exception($"Не удалось определить тип токена {Name}");
-        }
-
-        private object GetNubmer(string value)
-        {
-            if (int.TryParse(value, out var intResult))
-            {
-                return intResult;
-            }
-
-            if (double.TryParse(value, out var doubleResult))
-            {
-                return doubleResult;
-            }
-
-            if (decimal.TryParse(value, out var decimalResult))
-            {
-                return decimalResult;
-            }
-
-            if (float.TryParse(value, out var floatResult))
-            {
-                return floatResult;
-            }
-
-            throw new Exception("Неизвестный тип данных");
-        }
-    }
-
-    public enum TokenType
-    {
-        Undefined = -1,
-        String = 0,
-        Number = 1,
-        Boolean = 2,
-        IEnumerable = 3,
-        Class = 4,
-        Nullable = 5
-    }
-
-
-    //private static Token GetMembers(Type type, string name = null)
-    //{
-    //    if (type == typeof(string))
-    //    {
-    //        return new Token(name, , TokenType.String);
-    //    }
-
-    //    bool isNullablePrimitive = IsNullablePrimitive(type);
-    //    if (type.IsPrimitive || isNullablePrimitive)
-    //    {
-    //        return ToStrPrimitiveType(obj, name, out value);
-    //    }
-
-    //    if (type.IsGenericType || type.IsArray)
-    //    {
-    //        return ToStrGenericOrArrayType(obj, name, type, serialized);
-    //    }
-
-    //    EnrichSerializedData(obj, type, serialized);
-
-    //    if (type.IsClass)
-    //    {
-    //        return ToStrClassType(name, serialized);
-    //    }
-    //    throw new NotImplementedException();
-    //}
 }
