@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using System.Xml.Linq;
 
 namespace ReflectionSample.Managers
 {
@@ -11,34 +12,66 @@ namespace ReflectionSample.Managers
     {
         internal static T GetModel<T>(string parsed, Type type)
         {
-            var tokens = new List<Token>();
-            var text = parsed.Trim();
-            var length = text.Length;
-            var cur = 0;
-
-            if (text[cur] != '{')
+            if (type == typeof(string))
             {
-                throw new Exception("Не удалось распознать последовательность символов в начале");
+                string str = parsed;
+                str = str.TrimStart('\"');
+                int lastPatternIndex = str.LastIndexOf('\"');
+                str = str.Remove(lastPatternIndex);
+                str = str.Replace("\\\"", "\"");
+                return (T)Convert.ChangeType(str, typeof(string));
             }
 
-            while(cur < length - 1)
+            bool isNullablePrimitive = IsNullablePrimitive(type);
+            if (type.IsPrimitive || isNullablePrimitive)
             {
-                var token = GetNextToken(text, ref cur, length);
-                tokens.Add(token);
-                token.SetType();
+              
             }
 
-            //Проверка токенов на списки, классы, примитивы и т.д.
-            //Пропускаю в первой итерации, рассматриваю только числа
+            if (type.IsGenericType || type.IsArray)
+            {
+               
+            }
 
-            //Объект является классом - заполняем его поля и свойства
+           // EnrichSerializedData(obj, type, serialized);
+
             if (type.IsClass)
             {
-                return CreateInstanceClass<T>(type, tokens, 0);
+              
             }
+
+          
 
             throw new NotImplementedException();
         }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
         private static T CreateInstanceClass<T>(Type type, List<Token> tokens, int level)
         {

@@ -9,15 +9,6 @@ namespace ReflectionSample.Managers
 {
     internal class WriteManager: BaseManager
     {
-        const string ARRAY_START_SEPARATOR = "[";
-        const string ARRAY_END_SEPARATOR = "]";
-        const string ARRAY_ITEM_START_SEPARATOR = "{";
-        const string ARRAY_ITEM_END_SEPARATOR = "}";
-        const string NULL_VALUE = "null";
-        const string POINT = ".";
-        const string TUPLE_SEPARATOR = ":";
-        const string MAIN_SEPARATOR = ",";
-
         public static string GetMembers(object obj, string name, Type type)
         {
             var serialized = new List<string>();
@@ -94,7 +85,7 @@ namespace ReflectionSample.Managers
 
         private static string ToStrStringType(object obj, string name, out object value)
         {
-            value = obj == null ? NULL_VALUE : $"\"{obj}\"";
+            value = obj == null ? NULL_VALUE : $"\"{obj.ToString().Replace("\"","\\\"")}\"";
             if (!string.IsNullOrWhiteSpace(name))
             {
                 return $"\"{name}\"{TUPLE_SEPARATOR}{value}";

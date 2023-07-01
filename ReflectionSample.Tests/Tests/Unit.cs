@@ -5,6 +5,22 @@ namespace ReflectionSample.Tests.Tests
 {
     public partial class Unit
     {
+        [Theory]
+        [MemberData(nameof(TestDataString))]
+        public void TestSerializeStringData(string obj, string equal)
+        {
+            var serialized = Reflection.Serialize(obj);
+            Assert.Equal(serialized, equal);
+        }
+
+        [Theory]
+        [MemberData(nameof(TestDataString))]
+        public void TestDeserializeStringData(string equal, string obj)
+        {
+            var actual = Reflection.Deserialize<string>(obj);
+            Assert.Equal(actual, equal);
+        }
+
 
         [Theory]
         [MemberData(nameof(TestDataF))]

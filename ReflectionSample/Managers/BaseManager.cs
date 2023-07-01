@@ -5,11 +5,21 @@ using System.Reflection;
 namespace ReflectionSample.Managers
 {
     internal class BaseManager
-    {        /// <summary>
-             /// Примитив допускающий значение null
-             /// </summary>
-             /// <param name="type"></param>
-             /// <returns></returns>
+    {
+        protected const string ARRAY_START_SEPARATOR = "[";
+        protected const string ARRAY_END_SEPARATOR = "]";
+        protected const string ARRAY_ITEM_START_SEPARATOR = "{";
+        protected const string ARRAY_ITEM_END_SEPARATOR = "}";
+        protected const string NULL_VALUE = "null";
+        protected const string POINT = ".";
+        protected const string TUPLE_SEPARATOR = ":";
+        protected const string MAIN_SEPARATOR = ",";
+
+        /// <summary>
+        /// Примитив допускающий значение null
+        /// </summary>
+        /// <param name="type"></param>
+        /// <returns></returns>
         protected static bool IsNullablePrimitive(Type type)
         {
 

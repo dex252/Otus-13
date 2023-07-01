@@ -51,6 +51,7 @@ namespace ReflectionSample.Tests.Tests
             var num = 1;
             var fNum = 2.5f;
             var str = "aaa";
+            var str2 = "\"Шел летний теплый дождь, вокруг цвела сирень\"";
             var list = new List<string>() { "111", "222" };
             var listEmpty = new List<string>();
             var d = new D() { Name = "Cat" };
@@ -63,6 +64,9 @@ namespace ReflectionSample.Tests.Tests
 
             var jsonStr = JsonConvert.SerializeObject(str);
             Assert.NotEmpty(jsonStr);
+
+            var jsonStr2 = JsonConvert.SerializeObject(str2);
+            Assert.NotEmpty(jsonStr2);
 
             var jsonList = JsonConvert.SerializeObject(list);
             Assert.NotEmpty(jsonList);
