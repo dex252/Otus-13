@@ -15,11 +15,28 @@ namespace ReflectionSample.Tests.Tests
         }
 
         [Theory]
+        [MemberData(nameof(TestDataF))]
+        public void DeserializeTestF(F equal, string value)
+        {
+            var actual = Reflection.Deserialize<F>(value);
+
+            Assert.Equivalent(actual, equal);
+        }
+
+        [Theory]
         [MemberData(nameof(TestDataAnimal))]
         public void SerializeTestAnimal(Animal obj, string equal)
         {
             var serialized = Reflection.Serialize(obj);
             Assert.Equal(serialized, equal);
+        }
+
+        [Theory]
+        [MemberData(nameof(TestDataAnimal))]
+        public void DeserializeTestAnimal(Animal equal, string value)
+        {
+            var actual = Reflection.Deserialize<Animal>(value);
+            Assert.Equivalent(actual, equal);
         }
 
         [Theory]

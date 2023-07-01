@@ -1,21 +1,22 @@
-﻿using ReflectionSample.Serilalize;
+﻿using ReflectionSample.Managers;
 
 namespace ReflectionSample
 {
-    public static class Reflection
+    public class Reflection
     {
         public static string Serialize(object obj)
         {
             var type = obj.GetType();
             var name = string.Empty;
                 
-            return Write.GetMembers(obj, name, type);
+            return WriteManager.GetMembers(obj, name, type);
         }
 
-        public static T Deserialize<T>(string obj)
-            where T : class
+        public static T Deserialize<T>(string text)
         {
-            return null;
+            var type = typeof(T);
+
+            return ReadManager.GetModel<T>(text, type);
         }
     }
 }

@@ -5,9 +5,9 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 
-namespace ReflectionSample.Serilalize
+namespace ReflectionSample.Managers
 {
-    internal class Write
+    internal class WriteManager: BaseManager
     {
         const string ARRAY_START_SEPARATOR = "[";
         const string ARRAY_END_SEPARATOR = "]";
@@ -101,20 +101,6 @@ namespace ReflectionSample.Serilalize
             }
 
             return $"{value}";
-        }
-
-        /// <summary>
-        /// Примитив допускающий значение null
-        /// </summary>
-        /// <param name="type"></param>
-        /// <returns></returns>
-        private static bool IsNullablePrimitive(Type type)
-        {
-
-            //Примитив, допускающий значение null
-            return type.IsGenericType
-                                   && type.GetGenericTypeDefinition() == typeof(Nullable<>)
-                                   && type.GetGenericArguments()[0].IsPrimitive;
         }
 
         private static string GetGenerics(object obj, Type type)
