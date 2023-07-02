@@ -1,5 +1,4 @@
 using ReflectionSample.Tests.Models;
-using System.Runtime.InteropServices;
 using Xunit;
 
 namespace ReflectionSample.Tests.Tests
@@ -86,7 +85,7 @@ namespace ReflectionSample.Tests.Tests
         [Theory]
         [Obsolete]
         [MemberData(nameof(TestDataF))]
-        public void SerializeTestF(F obj, string equal)
+        public void SerializeTestF(FPrivate obj, string equal)
         {
             var serialized = Reflection.Serialize(obj);
             Assert.Equal(serialized, equal);
@@ -100,9 +99,9 @@ namespace ReflectionSample.Tests.Tests
         [Theory]
         [Obsolete]
         [MemberData(nameof(TestDataF))]
-        public void DeserializeTestF(F equal, string value)
+        public void DeserializeTestF(FPrivate equal, string value)
         {
-            var actual = Reflection.Deserialize<F>(value);
+            var actual = Reflection.Deserialize<FPrivate>(value);
 
             Assert.Equivalent(actual, equal);
         }
