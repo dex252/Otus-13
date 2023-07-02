@@ -14,6 +14,10 @@ namespace ReflectionSample.Managers
         protected const string POINT = ".";
         protected const string TUPLE_SEPARATOR = ":";
         protected const string MAIN_SEPARATOR = ",";
+        protected const string DECIMAL_TYPE = "Decimal";
+        protected const string FLOAT_TYPE = "Single";
+        protected const string INT_TYPE = "Int32";
+
 
         /// <summary>
         /// Примитив допускающий значение null

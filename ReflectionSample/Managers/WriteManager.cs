@@ -20,7 +20,7 @@ namespace ReflectionSample.Managers
             }
 
             bool isNullablePrimitive = IsNullablePrimitive(type);
-            if (type.IsPrimitive || isNullablePrimitive)
+            if (type.IsPrimitive || isNullablePrimitive || type.Name == DECIMAL_TYPE)
             {
                 return ToStrPrimitiveType(obj, name, out value);
             }

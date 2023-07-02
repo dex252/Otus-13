@@ -1,4 +1,5 @@
 using ReflectionSample.Tests.Models;
+using System.Runtime.InteropServices;
 using Xunit;
 
 namespace ReflectionSample.Tests.Tests
@@ -19,6 +20,54 @@ namespace ReflectionSample.Tests.Tests
         {
             var actual = Reflection.Deserialize<string>(obj);
             Assert.Equal(actual, equal);
+        }
+
+        [Theory]
+        [MemberData(nameof(TestDataNumbersInt))]
+        public void TestSerializeNumberIntData(int obj, string equal)
+        {
+            var serialized = Reflection.Serialize(obj);
+            Assert.Equivalent(serialized, equal);
+        }
+
+        [Theory]
+        [MemberData(nameof(TestDataNumbersInt))]
+        public void TestDeserializeNumberIntData(int equal, string obj)
+        {
+            var actual = Reflection.Deserialize<int>(obj);
+            Assert.Equivalent(actual, equal);
+        }
+
+        [Theory]
+        [MemberData(nameof(TestDataNumbersDecimal))]
+        public void TestSerializeNumberDecimalData(decimal obj, string equal)
+        {
+            var serialized = Reflection.Serialize(obj);
+            Assert.Equivalent(serialized, equal);
+        }
+
+        [Theory]
+        [MemberData(nameof(TestDataNumbersDecimal))]
+        public void TestDeserializeNumberDecimalData(decimal equal, string obj)
+        {
+            var actual = Reflection.Deserialize<decimal>(obj);
+            Assert.Equivalent(actual, equal);
+        }
+
+        [Theory]
+        [MemberData(nameof(TestDataNumbersFloat))]
+        public void TestSerializeNumberFloatData(float obj, string equal)
+        {
+            var serialized = Reflection.Serialize(obj);
+            Assert.Equivalent(serialized, equal);
+        }
+
+        [Theory]
+        [MemberData(nameof(TestDataNumbersFloat))]
+        public void TestDeserializeNumberFloatData(float equal, string obj)
+        {
+            var actual = Reflection.Deserialize<float>(obj);
+            Assert.Equivalent(actual, equal);
         }
 
 

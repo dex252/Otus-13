@@ -23,24 +23,43 @@ namespace ReflectionSample.Managers
             }
 
             bool isNullablePrimitive = IsNullablePrimitive(type);
-            if (type.IsPrimitive || isNullablePrimitive)
+            if (type.IsPrimitive || isNullablePrimitive || type.Name == DECIMAL_TYPE)
             {
-              
+                var str = parsed.Replace(".", ",");
+                switch (type.Name)
+                {
+                    case INT_TYPE:
+                    {
+                            return (T)Convert.ChangeType(str, typeof(int));
+                    }
+                    case DECIMAL_TYPE:
+                    {
+                            return (T)Convert.ChangeType(str, typeof(decimal));
+                    }
+                    case FLOAT_TYPE:
+                    {
+                            return (T)Convert.ChangeType(str, typeof(float));
+                    }
+                    default:
+                        throw new NotImplementedException();
+                }
+
+
             }
 
             if (type.IsGenericType || type.IsArray)
             {
-               
+
             }
 
-           // EnrichSerializedData(obj, type, serialized);
+            // EnrichSerializedData(obj, type, serialized);
 
             if (type.IsClass)
             {
-              
+
             }
 
-          
+
 
             throw new NotImplementedException();
         }
@@ -155,7 +174,7 @@ namespace ReflectionSample.Managers
             //Ищем первое вхождение ключа
             while (cur < allLength - 1)
             {
-                if(keyStart != -1 && keyEnd != -1)
+                if (keyStart != -1 && keyEnd != -1)
                 {
                     var name = text.Substring(keyStart, keyEnd - keyStart + 1);
                     return new Token(name, GetValue(text, ref cur, allLength), TokenType.Undefined);
@@ -177,7 +196,7 @@ namespace ReflectionSample.Managers
 
                 if (next == '"' && keyEnd == -1)
                 {
-                    keyEnd = cur-1;
+                    keyEnd = cur - 1;
                 }
             }
 
@@ -188,7 +207,7 @@ namespace ReflectionSample.Managers
         {
             var valStart = -1;
             var valEnd = -1;
-            var value  = string.Empty;
+            var value = string.Empty;
 
             while (cur < allLength)
             {
@@ -213,7 +232,7 @@ namespace ReflectionSample.Managers
 
                 if (next == ',' || cur == allLength - 1)
                 {
-                    valEnd = cur-1;
+                    valEnd = cur - 1;
                     continue;
                 }
             }

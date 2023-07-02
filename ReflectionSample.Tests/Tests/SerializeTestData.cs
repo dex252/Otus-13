@@ -59,7 +59,28 @@ namespace ReflectionSample.Tests.Tests
                 new object[] { "\"\"Шел летний теплый дождь\", \"вокруг цвела сирень\"", "\"\\\"\\\"Шел летний теплый дождь\\\", \\\"вокруг цвела сирень\\\"\""},
       };
 
-        
+        public static object[][] TestDataNumbersInt =>
+      new[]
+      {
+                new object[] { 111, "111"},
+                new object[] { 0, "0"}
+      };
+
+        public static object[][] TestDataNumbersDecimal =>
+      new[]
+      {
+                new object[] { 22m, "22"},
+                new object[] { 22.02m, "22.02"},
+                new object[] { 0.0m, "0.0"}
+      };
+        public static object[][] TestDataNumbersFloat =>
+      new[]
+      {
+            new object[] { 1f, "1"},
+            new object[] { 33.033f, "33.033"},
+            new object[] { 0f, "0"}
+      };
+
     }
 
 }
