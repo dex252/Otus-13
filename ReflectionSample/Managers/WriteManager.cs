@@ -37,7 +37,7 @@ namespace ReflectionSample.Managers
                 return ToStrClassType(name, serialized);
             }
 
-            return string.Join(MAIN_SEPARATOR, serialized);
+            return string.Join(MAIN_SEPARATOR.ToString(), serialized);
         }
 
         private static void EnrichSerializedData(object obj, Type type, List<string> serialized)
@@ -49,7 +49,7 @@ namespace ReflectionSample.Managers
 
         private static string ToStrClassType(string name, List<string> serialized)
         {
-            var members = string.Join(MAIN_SEPARATOR, serialized);
+            var members = string.Join(MAIN_SEPARATOR.ToString(), serialized);
             if (!string.IsNullOrWhiteSpace(name))
             {
                 return $"\"{name}\"{TUPLE_SEPARATOR}{ARRAY_ITEM_START_SEPARATOR}{members}{ARRAY_ITEM_END_SEPARATOR}";
@@ -61,7 +61,7 @@ namespace ReflectionSample.Managers
         private static string ToStrGenericOrArrayType(object obj, string name, Type type, List<string> serialized)
         {
             serialized.Add(GetGenerics(obj, type));
-            var members = string.Join(MAIN_SEPARATOR, serialized);
+            var members = string.Join(MAIN_SEPARATOR.ToString(), serialized);
 
             if (!string.IsNullOrWhiteSpace(name))
             {
@@ -132,7 +132,7 @@ namespace ReflectionSample.Managers
                 serialized.Add(GetMembers(item, null, elemType));
             }
 
-            return string.Join(MAIN_SEPARATOR, serialized);
+            return string.Join(MAIN_SEPARATOR.ToString(), serialized);
         }
 
         private static string GetFields(object obj, Type type)
@@ -156,7 +156,7 @@ namespace ReflectionSample.Managers
                 serialized.Add(members);
             }
 
-            return string.Join(MAIN_SEPARATOR, serialized);
+            return string.Join(MAIN_SEPARATOR.ToString(), serialized);
         }
 
         private static string GetProperties(object obj, Type type)
@@ -177,7 +177,7 @@ namespace ReflectionSample.Managers
                 serialized.Add(members);
             }
 
-            return string.Join(MAIN_SEPARATOR, serialized);
+            return string.Join(MAIN_SEPARATOR.ToString(), serialized);
         }
     }
 }

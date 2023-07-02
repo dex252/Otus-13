@@ -11,7 +11,7 @@ namespace ReflectionSample.Tests.Tests
 {
     public class TimeTest
     {
-        const int ITERATIONS = 10000;
+        const int ITERATIONS = 100000;
         public static object[][] TimeTestData =>
           new[]
         {

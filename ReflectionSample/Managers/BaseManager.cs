@@ -6,18 +6,17 @@ namespace ReflectionSample.Managers
 {
     internal class BaseManager
     {
-        protected const string ARRAY_START_SEPARATOR = "[";
-        protected const string ARRAY_END_SEPARATOR = "]";
-        protected const string ARRAY_ITEM_START_SEPARATOR = "{";
-        protected const string ARRAY_ITEM_END_SEPARATOR = "}";
+        protected const char ARRAY_START_SEPARATOR = '[';
+        protected const char ARRAY_END_SEPARATOR = ']';
+        protected const char ARRAY_ITEM_START_SEPARATOR = '{';
+        protected const char ARRAY_ITEM_END_SEPARATOR = '}';
         protected const string NULL_VALUE = "null";
-        protected const string POINT = ".";
-        protected const string TUPLE_SEPARATOR = ":";
-        protected const string MAIN_SEPARATOR = ",";
+        protected const char POINT = '.';
+        protected const char TUPLE_SEPARATOR = ':';
+        protected const char MAIN_SEPARATOR = ',';
         protected const string DECIMAL_TYPE = "Decimal";
         protected const string FLOAT_TYPE = "Single";
         protected const string INT_TYPE = "Int32";
-
 
         /// <summary>
         /// Примитив допускающий значение null

@@ -40,8 +40,8 @@ namespace ReflectionSample.Managers
 
             string str = parsed;
             str = str.Trim();
-            int firstPatternIndex = str.IndexOf('{');
-            int lastPatternIndex = str.LastIndexOf('}');
+            int firstPatternIndex = str.IndexOf(ARRAY_ITEM_START_SEPARATOR);
+            int lastPatternIndex = str.LastIndexOf(ARRAY_ITEM_END_SEPARATOR);
             str = str.Remove(lastPatternIndex);
             str = str.Substring(firstPatternIndex + 1, str.Length - 1);
 
@@ -104,12 +104,12 @@ namespace ReflectionSample.Managers
             //Получаем содержание начала значения в cutterValue
             //В зависимости от начала содержимого - возвращаем блок его значений
             var value = cutterValue.TrimStart();
-            if(value.First() == '{')
+            if(value.First() == ARRAY_ITEM_START_SEPARATOR)
             {
                 throw new NotImplementedException("Парсинг объекта внутри класса не реализован");
             }
 
-            if (value.First() == '[')
+            if (value.First() == ARRAY_START_SEPARATOR)
             {
                 throw new NotImplementedException("Парсинг массива внутри класса не реализован");
             }
@@ -120,8 +120,8 @@ namespace ReflectionSample.Managers
             }
 
             //Вероятно, содержимое - число, значит можно отдель значение до запятой или знака }
-            var indexEndPaire = value.IndexOf(",");
-            var indexEndObject = value.IndexOf("}");
+            var indexEndPaire = value.IndexOf(MAIN_SEPARATOR);
+            var indexEndObject = value.IndexOf(ARRAY_ITEM_END_SEPARATOR);
             var indexEnd = -1;
 
             if(indexEndObject == -1 && indexEndPaire == -1)
@@ -179,7 +179,7 @@ namespace ReflectionSample.Managers
                 type = type.GetGenericArguments()[0];
             }
 
-            var str = parsed?.Trim()?.Replace(".", ",");
+            var str = parsed?.Trim()?.Replace(POINT, MAIN_SEPARATOR);
             return Convert.ChangeType(str, type);
         }
 
