@@ -27,7 +27,7 @@ namespace ReflectionSample.Tests.Tests
         public void TestSerializeNumberIntData(int obj, string equal)
         {
             var serialized = Reflection.Serialize(obj);
-            Assert.Equivalent(serialized, equal);
+            Assert.Equal(serialized, equal);
         }
 
         [Theory]
@@ -35,7 +35,7 @@ namespace ReflectionSample.Tests.Tests
         public void TestDeserializeNumberIntData(int equal, string obj)
         {
             var actual = Reflection.Deserialize<int>(obj);
-            Assert.Equivalent(actual, equal);
+            Assert.Equal(actual, equal);
         }
 
         [Theory]
@@ -43,7 +43,7 @@ namespace ReflectionSample.Tests.Tests
         public void TestSerializeNumberDecimalData(decimal obj, string equal)
         {
             var serialized = Reflection.Serialize(obj);
-            Assert.Equivalent(serialized, equal);
+            Assert.Equal(serialized, equal);
         }
 
         [Theory]
@@ -51,7 +51,7 @@ namespace ReflectionSample.Tests.Tests
         public void TestDeserializeNumberDecimalData(decimal equal, string obj)
         {
             var actual = Reflection.Deserialize<decimal>(obj);
-            Assert.Equivalent(actual, equal);
+            Assert.Equal(actual, equal);
         }
 
         [Theory]
@@ -59,7 +59,7 @@ namespace ReflectionSample.Tests.Tests
         public void TestSerializeNumberFloatData(float obj, string equal)
         {
             var serialized = Reflection.Serialize(obj);
-            Assert.Equivalent(serialized, equal);
+            Assert.Equal(serialized, equal);
         }
 
         [Theory]
@@ -67,11 +67,24 @@ namespace ReflectionSample.Tests.Tests
         public void TestDeserializeNumberFloatData(float equal, string obj)
         {
             var actual = Reflection.Deserialize<float>(obj);
-            Assert.Equivalent(actual, equal);
+            Assert.Equal(actual, equal);
         }
 
-
         [Theory]
+        [MemberData(nameof(TestDataList))]
+        public void SerializeTestListClass(ListClass obj, string equal)
+        {
+            var serialized = Reflection.Serialize(obj);
+            Assert.Equal(serialized, equal);
+        }
+
+        /// <summary>
+        /// Тест не является валидным, т.к. поля приватные. Смотреть результат следует в ручную.
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <param name="equal"></param>
+        [Theory]
+        [Obsolete]
         [MemberData(nameof(TestDataF))]
         public void SerializeTestF(F obj, string equal)
         {
@@ -79,7 +92,13 @@ namespace ReflectionSample.Tests.Tests
             Assert.Equal(serialized, equal);
         }
 
+        /// <summary>
+        /// Тест не является валидным, т.к. поля приватные. Смотреть результат следует в ручную.
+        /// </summary>
+        /// <param name="equal"></param>
+        /// <param name="value"></param>
         [Theory]
+        [Obsolete]
         [MemberData(nameof(TestDataF))]
         public void DeserializeTestF(F equal, string value)
         {
@@ -102,14 +121,6 @@ namespace ReflectionSample.Tests.Tests
         {
             var actual = Reflection.Deserialize<Animal>(value);
             Assert.Equivalent(actual, equal);
-        }
-
-        [Theory]
-        [MemberData(nameof(TestDataList))]
-        public void SerializeTestListClass(ListClass obj, string equal)
-        {
-            var serialized = Reflection.Serialize(obj);
-            Assert.Equal(serialized, equal);
         }
 
         [Theory]

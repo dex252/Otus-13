@@ -16,7 +16,7 @@ namespace ReflectionSample
         {
             var type = typeof(T);
 
-            return ReadManager.GetModel<T>(text, type);
+            return (T)ReadManager.GetModel(text, type);
         }
     }
 }

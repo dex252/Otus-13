@@ -1,122 +1,70 @@
-﻿using ReflectionSample.Models;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using System.Data.SqlTypes;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using System.Text.RegularExpressions;
 using System.Xml.Linq;
 
 namespace ReflectionSample.Managers
 {
     internal class ReadManager : BaseManager
     {
-        internal static T GetModel<T>(string parsed, Type type)
+        internal static object GetModel(string parsed, Type type)
         {
             if (type == typeof(string))
             {
-                string str = parsed;
-                str = str.TrimStart('\"');
-                int lastPatternIndex = str.LastIndexOf('\"');
-                str = str.Remove(lastPatternIndex);
-                str = str.Replace("\\\"", "\"");
-                return (T)Convert.ChangeType(str, typeof(string));
+                return ConvertToStr(parsed);
             }
 
             bool isNullablePrimitive = IsNullablePrimitive(type);
             if (type.IsPrimitive || isNullablePrimitive || type.Name == DECIMAL_TYPE)
             {
-                var str = parsed.Replace(".", ",");
-                switch (type.Name)
-                {
-                    case INT_TYPE:
-                    {
-                            return (T)Convert.ChangeType(str, typeof(int));
-                    }
-                    case DECIMAL_TYPE:
-                    {
-                            return (T)Convert.ChangeType(str, typeof(decimal));
-                    }
-                    case FLOAT_TYPE:
-                    {
-                            return (T)Convert.ChangeType(str, typeof(float));
-                    }
-                    default:
-                        throw new NotImplementedException();
-                }
-
-
+                return ConvertToNumber(parsed, type);
             }
 
             if (type.IsGenericType || type.IsArray)
             {
-
+                throw new NotImplementedException();
             }
-
-            // EnrichSerializedData(obj, type, serialized);
 
             if (type.IsClass)
             {
-
+                return ConvertToClass(parsed, type);
             }
-
-
 
             throw new NotImplementedException();
         }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        private static T CreateInstanceClass<T>(Type type, List<Token> tokens, int level)
+        private static object ConvertToClass(string parsed, Type type)
         {
-            var target = Activator.CreateInstance<T>();
-            SetProperties(type, target, tokens, level);
-            SetFields(type, target, tokens, level);
+            var instance = Activator.CreateInstance(type);
 
-            return target;
-        }
+            string str = parsed;
+            str = str.Trim();
+            int firstPatternIndex = str.IndexOf('{');
+            int lastPatternIndex = str.LastIndexOf('}');
+            str = str.Remove(lastPatternIndex);
+            str = str.Substring(firstPatternIndex + 1, str.Length - 1);
 
-        private static void SetProperties<T>(Type type, T target, List<Token> tokens, int level)
-        {
+            if (string.IsNullOrWhiteSpace(str))
+            {
+                return instance;
+            }
+
             var properties = type.GetProperties();
+            var fields = type.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.DeclaredOnly);
 
             foreach (var property in properties)
             {
                 var propertyType = property.PropertyType;
                 var propertyName = property.Name;
 
-                SetToObject(propertyType, propertyName, target, tokens, level);
+                var find = GetValueByObject(propertyType, propertyName, str);
+                var model = GetModel(find, propertyType);
+                SetValue(instance, propertyName, model);
             }
-        }
-
-        private static void SetFields(Type type, object target, List<Token> tokens, int level)
-        {
-            var fields = type.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.DeclaredOnly);
 
             foreach (var field in fields)
             {
@@ -129,117 +77,114 @@ namespace ReflectionSample.Managers
                 var fieldType = field.FieldType;
                 var fieldName = field.Name;
 
-                SetToObject(fieldType, fieldName, target, tokens, level);
+                var find = GetValueByObject(fieldType, fieldName, str);
+                var model = GetModel(find, fieldType);
+                SetValue(instance, fieldName, model);
             }
+
+            return instance;
         }
 
-        private static void SetToObject<T>(Type type, string name, T target, List<Token> tokens, int level)
+        private static string GetValueByObject(Type type, string name, string parsed)
         {
-            var token = tokens.FirstOrDefault(e => e.Name == name && e.Level == level);
-            if (token == null)
+            var str = parsed;
+            int count = Regex.Matches(str, name).Count;
+            if (count == 0)
             {
-                throw new Exception($"Токен с именем {name} на уровне вложенности {level} не найден");
+                throw new Exception("Не найдено вхождение строки в подстроку");
             }
 
-            SetValue(target, name, token.Value);
-
-            //bool isNullablePrimitive = IsNullablePrimitive(type);
-            //if (type.IsPrimitive || isNullablePrimitive)
-            //{
-            //    SetPrimitiveValue(target, name, tokens, level);
-            //}
-
-            //if (type == typeof(string))
-            //{
-
-            //}
-        }
-
-        private static void SetPrimitiveValue<T>(T target, string name, List<Token> tokens, int level)
-        {
-            var token = tokens.FirstOrDefault(e => e.Name == name && e.Level == level);
-            if (token == null)
+            if (count > 1)
             {
-                throw new Exception($"Токен с именем {name} на уровне вложенности {level} не найден");
+                throw new NotImplementedException();
             }
 
-            SetValue(target, name, token.Value);
-        }
+            var indexStart = str.IndexOf(name);
+            var cutter = str.Substring(indexStart + name.Length);
+            var indexOfDelimiter = cutter.IndexOf(TUPLE_SEPARATOR);
+            var cutterValue = cutter.Substring(indexOfDelimiter + 1);
 
-        private static Token GetNextToken(string text, ref int cur, int allLength)
-        {
-            var keyStart = -1;
-            var keyEnd = -1;
-
-            //Ищем первое вхождение ключа
-            while (cur < allLength - 1)
+            //Получаем содержание начала значения в cutterValue
+            //В зависимости от начала содержимого - возвращаем блок его значений
+            var value = cutterValue.TrimStart();
+            if(value.First() == '{')
             {
-                if (keyStart != -1 && keyEnd != -1)
-                {
-                    var name = text.Substring(keyStart, keyEnd - keyStart + 1);
-                    return new Token(name, GetValue(text, ref cur, allLength), TokenType.Undefined);
-                }
-
-                cur++;
-                var next = text[cur];
-
-                if (next == ' ' && keyStart == -1)
-                {
-                    continue;
-                }
-
-                if (next == '"' && keyStart == -1)
-                {
-                    keyStart = cur + 1;
-                    continue;
-                }
-
-                if (next == '"' && keyEnd == -1)
-                {
-                    keyEnd = cur - 1;
-                }
+                throw new NotImplementedException("Парсинг объекта внутри класса не реализован");
             }
 
-            return null;
-        }
-
-        private static string GetValue(string text, ref int cur, int allLength)
-        {
-            var valStart = -1;
-            var valEnd = -1;
-            var value = string.Empty;
-
-            while (cur < allLength)
+            if (value.First() == '[')
             {
-                if (valStart != -1 && valEnd != -1)
-                {
-                    value = text.Substring(valStart, valEnd - valStart + 1);
-                    return value;
-                }
-
-                cur++;
-                var next = text[cur];
-                if ((next == ' ' || next == ':') && valStart == -1)
-                {
-                    continue;
-                }
-
-                if (valStart == -1)
-                {
-                    valStart = cur;
-                    continue;
-                }
-
-                if (next == ',' || cur == allLength - 1)
-                {
-                    valEnd = cur - 1;
-                    continue;
-                }
+                throw new NotImplementedException("Парсинг массива внутри класса не реализован");
             }
 
-            valEnd = cur - 1;
-            value = text.Substring(valStart, valEnd - valStart + 1);
+            if (value.First() == '\"')
+            {
+                //Возвращаем содержимое строки, важно захватить экранированные символы
+            }
+
+            //Вероятно, содержимое - число, значит можно отдель значение до запятой или знака }
+            var indexEndPaire = value.IndexOf(",");
+            var indexEndObject = value.IndexOf("}");
+            var indexEnd = -1;
+
+            if(indexEndObject == -1 && indexEndPaire == -1)
+            {
+                indexEnd = value.Length;
+            } 
+            else if(indexEndObject == -1)
+            {
+                indexEnd = indexEndPaire;
+            }
+            else if(indexEndPaire == -1)
+            {
+                indexEnd = indexEndObject;
+            }
+            else
+            {
+                indexEnd = Math.Min(indexEndPaire, indexEndObject);
+            }
+
+            value = value.Substring(0, indexEnd);
+            if (value == NULL_VALUE)
+            {
+                value = null;
+            }
+
             return value;
         }
+
+        private static object ConvertToStr(string parsed)
+        {
+            if (parsed == null)
+            {
+                return Convert.ChangeType(parsed, typeof(string));
+            }
+
+            string str = parsed.Trim();
+            str = str.TrimStart('\"');
+            int lastPatternIndex = str.LastIndexOf('\"');
+            str = str.Remove(lastPatternIndex);
+            str = str.Replace("\\\"", "\"");
+            return Convert.ChangeType(str, typeof(string));
+        }
+
+        private static object ConvertToNumber(string parsed, Type type)
+        {
+            if (parsed == null)
+            {
+                return null;
+            }
+         
+            var isNullable = IsNullablePrimitive(type);
+
+            if (isNullable)
+            {
+                type = type.GetGenericArguments()[0];
+            }
+
+            var str = parsed?.Trim()?.Replace(".", ",");
+            return Convert.ChangeType(str, type);
+        }
+
     }
 }
